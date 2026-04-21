@@ -1,169 +1,431 @@
 version: 1
-owner: "jackwesleyroper"
-
 units:
   knobs: "0-10"
-  time: "ms"
-  gain: "0-10"
-  volume: "0-10"
+  time_ms: "ms"
 
 guitars:
-  - id: strat_sss
-    name: "Fender Stratocaster (SSS)"
+  - id: gibson_sg_standard_2020
+    name: "Gibson SG Standard"
+    pickups: ["hh"]
+    pickup_positions: ["bridge", "middle", "neck"]
+    notes:
+      - "Colour: Ebony"
+      - "Year: 2020"
+      - "Country: USA"
+      - "Neck pickup: 490R"
+      - "Bridge pickup: 490T"
+
+  - id: gibson_les_paul_standard_50s_2021
+    name: "Gibson Les Paul Standard 50's"
+    pickups: ["hh"]
+    pickup_positions: ["bridge", "middle", "neck"]
+    notes:
+      - "Colour: Tobacco Burst"
+      - "Year: 2021"
+      - "Country: USA"
+
+  - id: fender_jaguar_66_big_block
+    name: "Fender Jaguar 66 Big Block"
+    pickups: ["ss"]
+    pickup_positions: ["bridge", "middle", "neck"]
+    notes:
+      - "Colour: Candy Apple Red"
+      - "Country: Japan (Made in Japan)"
+      - "Pickups: JG-SINGLE (as listed)"
+      - "Mods: scratchplate, pickups swapped (Ernie Ball Quarter Pounders), bridge swapped (Mustang), buzz stop"
+
+  - id: fender_jazzmaster_j_mascis
+    name: "Fender Jazzmaster J Mascis Signature"
+    pickups: ["ss"]
+    pickup_positions: ["bridge", "middle", "neck"]
+    notes:
+      - "Colour: Purple Sparkle"
+      - "Lead/rhythm circuits (Jazzmaster style)"
+
+  - id: fender_telecaster_j_mascis
+    name: "Fender Telecaster J Mascis Signature"
+    pickups: ["ss"]
+    pickup_positions: ["bridge", "middle", "neck"]
+    notes:
+      - "Colour: Bottle Rocket Blue Flake"
+      - "Pickups: J Mascis Custom ’58 Tele® Single-Coil"
+      - "Switching: out-of-phase middle position (as listed)"
+      - "Tuners swapped to Gotoh Locking Vintage Oval Knob"
+
+  - id: epiphone_sg_bass
+    name: "Epiphone SG Bass"
+    pickups: ["unknown"]
+    pickup_positions: ["bridge", "neck"]
+    notes:
+      - "Colour: Red"
+
+  - id: fender_stratocaster_classic_player_60s
+    name: "Fender Stratocaster Classic Player 60s"
     pickups: ["sss"]
     pickup_positions: ["bridge", "bridge_middle", "middle", "middle_neck", "neck"]
-    notes: ["bright glassy cleans", "quacky in-between positions", "great for funk, blues, classic rock"]
+    notes:
+      - "Colour: Daphne Blue"
 
-  - id: tele_ss
-    name: "Fender Telecaster (SS)"
-    pickups: ["ss"]
-    pickup_positions: ["bridge", "neck", "both"]
-    notes: ["twangy bridge", "warm neck", "country, rock, indie"]
-
-  - id: lespaul_hh
-    name: "Gibson Les Paul style (HH)"
+  - id: gretsch_electromatic_pro_jet_g5235t_2010
+    name: "Gretsch Electromatic Pro Jet G5235T"
     pickups: ["hh"]
-    pickup_positions: ["bridge", "neck"]
-    notes: ["thick mids", "high output", "classic rock, hard rock, blues-rock"]
-
-  - id: sg_hh
-    name: "Gibson SG style (HH)"
-    pickups: ["hh"]
-    pickup_positions: ["bridge", "neck"]
-    notes: ["aggressive tone", "light weight", "hard rock, punk, blues"]
+    pickup_positions: ["bridge", "middle", "neck"]
+    notes:
+      - "Colour: Black Top / Walnut Stain"
+      - "Year: 2010"
+      - "Country: China"
+      - "Trem: bigsby B50"
+      - "Pickups: Dual TV Jones designed Gretsch mini-humbucker pickups"
 
 amps:
-  - id: fender_deluxe
-    name: "Fender Deluxe Reverb style"
-    type: "combo"
-    channels: ["normal", "vibrato"]
-    controls: ["volume", "treble", "bass", "reverb", "vibrato_speed", "vibrato_intensity"]
-    notes: ["clean headroom", "excellent pedal platform", "lush built-in reverb"]
+  - id: marshall_jcm_800_studio_lead
+    name: "Marshall JCM 800 Studio Lead Series head"
+    amp_type: "Head"
+    effects_loop: true
+    channels: ["High", "Low"]
+    controls: ["gain", "master", "bass", "middle", "treble", "presence"]
+    notes: []
 
-  - id: vox_ac30
-    name: "Vox AC30 style"
-    type: "combo"
-    channels: ["normal", "top_boost"]
-    controls: ["gain", "bass", "treble", "cut", "master"]
-    notes: ["chime and jangle", "edge-of-breakup naturally", "top boost for classic British tone"]
+  - id: marshall_valvestate_avt_275_2000
+    name: "Marshall Valvestate AVT 275 2000"
+    amp_type: "Combo"
+    effects_loop: true
+    channels: ["OD1", "OD2", "AC SIM", "Clean"]
+    controls: ["gain", "volume", "bass", "middle", "treble", "presence"]
+    notes: []
 
-  - id: marshall_plexi
-    name: "Marshall Plexi style"
-    type: "head"
-    channels: ["normal", "high_treble"]
-    controls: ["volume_normal", "volume_high_treble", "treble", "middle", "bass", "presence"]
-    notes: ["classic British crunch", "vintage rock", "loud clean to natural overdrive"]
+  - id: peavey_6505_plus_112
+    name: "Peavey 6505+ 112"
+    amp_type: "Combo"
+    effects_loop: true
+    channels: ["Lead", "Rythnm"]
+    controls: ["pre_gain", "post_gain", "bass", "middle", "treble", "presence", "resonance"]
+    notes: []
 
-  - id: mesa_boogie
-    name: "Mesa/Boogie style"
-    type: "combo"
-    channels: ["clean", "lead"]
-    controls: ["gain", "treble", "mid", "bass", "presence", "master"]
-    notes: ["tight high-gain", "scooped metal tones", "versatile clean channel"]
+  - id: fender_champ_57_custom
+    name: "Fender Champ '57 Custom"
+    amp_type: "Combo"
+    effects_loop: false
+    channels: ["Normal"]
+    controls: ["volume", "tone"]
+    notes: []
+
+  - id: fender_hot_rod
+    name: "Fender Hot Rod"
+    amp_type: "Combo"
+    effects_loop: true
+    channels: ["OD", "Clean"]
+    controls: ["gain", "master", "volume", "bass", "middle", "treble", "presence", "reverb"]
+    notes: []
 
 pedals:
-  - id: tuner
-    name: "Chromatic Tuner"
-    category: "utility"
-    controls: []
-    notes: ["always first in chain"]
-
-  - id: wah
-    name: "Wah pedal"
-    category: "filter"
-    controls: ["position"]
-    notes: ["expression pedal", "rocker controls frequency sweep"]
-
-  - id: compressor
-    name: "Compressor"
-    category: "dynamics"
-    controls: ["sustain", "level", "attack", "blend"]
-    notes: ["early in chain", "evens out dynamics", "country chicken picking"]
-
-  - id: boost
-    name: "Clean Boost"
-    category: "boost"
-    controls: ["level"]
-    notes: ["pushes amp into breakup", "or lifts solos"]
-
-  - id: ts_od
-    name: "Tube Screamer style Overdrive"
-    category: "overdrive"
-    controls: ["drive", "tone", "level"]
-    notes: ["mid hump", "classic blues-rock OD", "stacks well with amp gain"]
-
-  - id: blues_driver
-    name: "Blues Driver style OD"
-    category: "overdrive"
-    controls: ["gain", "tone", "level"]
-    notes: ["transparent OD", "light breakup to crunch", "touch-sensitive"]
-
-  - id: rat_dist
-    name: "RAT style Distortion"
-    category: "distortion"
-    controls: ["distortion", "filter", "volume"]
-    notes: ["aggressive distortion", "filter cuts highs", "versatile from OD to heavy dist"]
-
-  - id: big_muff
-    name: "Big Muff style Fuzz"
-    category: "fuzz"
-    controls: ["sustain", "tone", "volume"]
-    notes: ["classic fuzz/sustain", "great for lead tones", "shoegaze, grunge, classic rock"]
-
-  - id: chorus
-    name: "Chorus"
-    category: "modulation"
-    controls: ["rate", "depth", "mix"]
-    notes: ["lush shimmer", "80s clean tones", "doubles guitar sound"]
-
-  - id: phaser
-    name: "Phaser"
-    category: "modulation"
-    controls: ["rate", "depth", "feedback"]
-    notes: ["sweeping phase effect", "classic rock", "funk"]
-
-  - id: flanger
-    name: "Flanger"
-    category: "modulation"
-    controls: ["rate", "depth", "feedback", "mix"]
-    notes: ["jet-plane sweep", "Van Halen-style runs"]
-
-  - id: tremolo
-    name: "Tremolo"
-    category: "modulation"
-    controls: ["rate", "depth"]
-    notes: ["volume oscillation", "surf rock", "classic country"]
-
-  - id: delay
-    name: "Digital Delay"
+  - id: akai_head_rush_e2
+    name: "AKAI Head Rush E2"
     category: "delay"
-    controls: ["time_ms", "feedback", "mix"]
-    notes: ["dotted-eighth for U2 style", "slapback for rockabilly", "long trails for ambient"]
+    controls: ["Mode Select", "Level", "Feedback", "HF Damp", "Ratio", "Head Gap"]
 
-  - id: reverb
-    name: "Reverb"
-    category: "reverb"
-    controls: ["decay", "tone", "mix"]
-    notes: ["hall, room or spring types", "always last in chain before amp"]
+  - id: bearfoot_fx_emerald_green
+    name: "Bearfoot FX Emerald Green "
+    category: "distortion"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
 
-  - id: noise_gate
-    name: "Noise Gate"
-    category: "dynamics"
-    controls: ["threshold", "decay"]
-    notes: ["reduces hum and hiss", "especially useful with high-gain setups"]
+  - id: bearfoot_fx_pink_purple
+    name: "Bearfoot FX Pink Purple"
+    category: "fuzz"
+    controls: ["Volume", "Fuzz", "Nature"]
 
-  - id: eq_pedal
-    name: "Graphic EQ"
+  - id: bearfoot_fx_candy_apple_fuzz
+    name: "Bearfoot FX Candy Apple Fuzz"
+    category: "fuzz"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: bigfoot_magnavibe
+    name: "Bigfoot  Magnavibe"
+    category: "tremolo"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: black_arts_pharaoh
+    name: "Black Arts  Pharaoh "
+    category: "fuzz"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: boss_ds2_turbo_distortion
+    name: "Boss Turbo Distortion DS2"
+    category: "distortion"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: catalinbread_galileo
+    name: "Catalinbread Galileo"
+    category: "overdrive"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: catalinbread_dirty_little_secret_mk3
+    name: "Catalinbread  Dirty Little Secret mk3"
+    category: "overdrive"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: crowther_hotcake
+    name: "Crowther Hotcake"
+    category: "overdrive"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: dam_fuzzrong
+    name: "DAM Fuzzrong"
+    category: "fuzz"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: dam_meathead
+    name: "DAM Meathead "
+    category: "fuzz"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: death_by_audio_echo_dream_2
+    name: "Death By Audio Echo Dream 2"
+    category: "delay_fuzz"
+    controls:
+      - "Delay Time"
+      - "Feedback"
+      - "Master"
+      - "Fuzz"
+      - "Delay"
+      - "Speed"
+      - "Depth"
+      - "Left Toggle: Up for clean blend, down to kill the dry signal and hear only the repeats"
+      - "Right Toggle: Up for a smoother modulator waveform, down for a sharp, square-shaped wave."
+
+  - id: demeter_fat_control
+    name: "Demeter  Fat Control"
+    category: "mid_boost"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: dunlop_q_zone
+    name: "Dunlop Q-Zone"
+    category: "auto_wah"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: dunlop_jerry_cantrell_wah
+    name: "Dunlop Jerry Cantrell Wah"
+    category: "wah"
+    controls: ["Frequency"]
+
+  - id: earthquaker_hummingbird
+    name: "Earthquaker  Hummingbird"
+    category: "tremolo"
+    controls: ["Depth", "Rate", "Level"]
+
+  - id: electro_harmonix_lpb_1
+    name: "Electro Harmonix LPB-1 Liner Power Booster"
+    category: "boost"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: electro_harmonix_small_clone_eh4600
+    name: "Electro Harmonix Small Clone EH4600"
+    category: "chorus"
+    controls: ["Rate", "Depth"]
+
+  - id: electro_harmonix_dr_q_modded
+    name: "Electro Harmonix Dr. Q Modded (Nurse Quacky)"
+    category: "envelope_filter"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: electro_harmonix_deluxe_electric_mistress
+    name: "Electro Harmonix Deluxe Electric Mistress"
+    category: "flanger"
+    controls: ["Filter Matrix", "Colour", "Range", "Rate"]
+
+  - id: electro_harmonix_big_muff_66_triangle
+    name: "Electro Harmonix Big Muff 66 Triangle"
+    category: "fuzz"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: electro_harmonix_green_russian_big_muff
+    name: "Electro Harmonix Green Russian Big Muff"
+    category: "fuzz"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: electro_harmonix_small_stone_nano
+    name: "Electro Harmonix Small Stone Nano"
+    category: "phaser"
+    controls: ["Rate", "Color"]
+
+  - id: electro_harmonix_screaming_bird
+    name: "Electro Harmonix Screaming Bird"
+    category: "treble_boost"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: fulltone_ocd_v3
+    name: "Fulltone OCD v3"
+    category: "overdrive"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: keeley_compressor
+    name: "Keeley Compressor"
+    category: "compressor"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: klon_buffer
+    name: "Klon Buffer"
+    category: "buffer"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: klon_centaur
+    name: "Klon Centaur"
+    category: "overdrive"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: lovepedal_delux_sixty
+    name: "Lovepedal Delux Sixty"
+    category: "boost"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: mad_professor_snow_white_autowah
+    name: "Mad Professor  Snow White Autowah"
+    category: "auto_wah"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: mad_professor_deep_blue_delay
+    name: "Mad Professor  Deep Blue Delay (Red Mist Abyss)"
+    category: "delay"
+    controls: ["Volume", "Delay", "Mix", "Repeat"]
+
+  - id: maxon_od808
+    name: "Maxon Overdrive Overdrive OD808"
+    category: "overdrive"
+    controls: ["Drive", "Balance", "Tone"]
+
+  - id: mojo_hand_fx_iron_bell
+    name: "Mojo Hand FX Iron Bell"
+    category: "fuzz"
+    controls: ["Tone", "Gain", "Color", "Volume"]
+
+  - id: mxr_m109s_6_band_eq
+    name: "MXR M109S 6-Band EQ"
     category: "eq"
-    controls: ["100hz", "200hz", "400hz", "800hz", "1600hz", "3200hz", "6400hz", "level"]
-    notes: ["sculpt tone", "mid-boost for leads", "can go in effects loop"]
+    controls: ["100Hz", "200Hz", "400Hz", "800Hz", "1.6kHz", "3.2kHz"]
+
+  - id: mxr_dist_plus_with_mods
+    name: "MXR  Dist+ with Mods"
+    category: "distortion"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: paul_cochrane_timmy
+    name: "Paul Cochrane Timmy"
+    category: "overdrive"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: pete_cornish_buffer
+    name: "Pete Cornish Buffer"
+    category: "buffer"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: proco_rat
+    name: "Proco RAT"
+    category: "distortion"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: red_mist_modulus_magnus
+    name: "Red Mist Modulus Magnus"
+    category: "delay_tremolo"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: red_mist_all_star_reverb
+    name: "Red Mist All Star Reverb"
+    category: "reverb"
+    controls: ["Damp", "Dwell", "Reverb"]
+
+  - id: rick_holt_little_angel_chorus
+    name: "Rick Holt Little Angel Chorus"
+    category: "chorus"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: stone_deaf_fx_q_boost
+    name: "Stone Deaf FX Q-Boost"
+    category: "distortion"
+    controls: ["Pre amp", "Freq Boost", "Vintage or Modern switch"]
+
+  - id: t_rex_mudhoney
+    name: "T-Rex Mudhoney"
+    category: "distortion"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: univox_superfuzz
+    name: "Univox Superfuzz"
+    category: "fuzz"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: wampler_triple_wreck
+    name: "Wampler Triple Wreck"
+    category: "distortion"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: way_huge_peircing_moose
+    name: "Way Huge  Peircing Moose"
+    category: "fuzz_octave"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: way_huge_red_lllama
+    name: "Way Huge  Red Lllama"
+    category: "overdrive_fuzz"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: zvex_woolly_mammoth
+    name: "ZVEX Woolly Mammoth"
+    category: "bass_fuzz"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: zvex_super_hard_on
+    name: "ZVEX Super Hard On"
+    category: "boost"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
+
+  - id: zvex_super_duper_2_in_1
+    name: "ZVEX Super Duper 2 in 1"
+    category: "boost_fuzz"
+    controls: []
+    notes: ["Controls not listed in source CSV"]
 
 cabs_irs:
   enabled: false
   items: []
 
 constraints:
-  max_pedals_in_chain: 6
+  max_pedals_in_chain: 8
   must_choose_from_inventory_only: true
-  output_format: "json"
   allowed_alternatives: true
+  output_format: "json"
