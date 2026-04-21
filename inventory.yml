@@ -83,7 +83,7 @@ amps:
     amp_type: "Head"
     effects_loop: true
     channels: ["High", "Low"]
-    controls: ["gain", "master", "bass", "middle", "treble", "presence"]
+    controls: ["pre-amp", "master", "bass", "middle", "treble", "presence"]
     notes: []
 
   - id: marshall_valvestate_avt_275_2000
@@ -125,7 +125,7 @@ pedals:
     controls: ["Mode Select", "Level", "Feedback", "HF Damp", "Ratio", "Head Gap"]
 
   - id: bearfoot_fx_emerald_green
-    name: "Bearfoot FX Emerald Green "
+    name: "Bearfoot FX Emerald Green"
     category: "distortion"
     controls: []
     notes: ["Controls not listed in source CSV"]
@@ -148,7 +148,7 @@ pedals:
     notes: ["Controls not listed in source CSV"]
 
   - id: black_arts_pharaoh
-    name: "Black Arts  Pharaoh "
+    name: "Black Arts Pharaoh"
     category: "fuzz"
     controls: []
     notes: ["Controls not listed in source CSV"]
@@ -184,7 +184,7 @@ pedals:
     notes: ["Controls not listed in source CSV"]
 
   - id: dam_meathead
-    name: "DAM Meathead "
+    name: "DAM Meathead"
     category: "fuzz"
     controls: []
     notes: ["Controls not listed in source CSV"]
@@ -204,7 +204,7 @@ pedals:
       - "Right Toggle: Up for a smoother modulator waveform, down for a sharp, square-shaped wave."
 
   - id: demeter_fat_control
-    name: "Demeter  Fat Control"
+    name: "Demeter Fat Control"
     category: "mid_boost"
     controls: []
     notes: ["Controls not listed in source CSV"]
@@ -221,7 +221,7 @@ pedals:
     controls: ["Frequency"]
 
   - id: earthquaker_hummingbird
-    name: "Earthquaker  Hummingbird"
+    name: "Earthquaker Hummingbird"
     category: "tremolo"
     controls: ["Depth", "Rate", "Level"]
 
@@ -301,13 +301,13 @@ pedals:
     notes: ["Controls not listed in source CSV"]
 
   - id: mad_professor_snow_white_autowah
-    name: "Mad Professor  Snow White Autowah"
+    name: "Mad Professor Snow White Autowah"
     category: "auto_wah"
     controls: []
     notes: ["Controls not listed in source CSV"]
 
   - id: mad_professor_deep_blue_delay
-    name: "Mad Professor  Deep Blue Delay (Red Mist Abyss)"
+    name: "Mad Professor Deep Blue Delay (Red Mist Abyss)"
     category: "delay"
     controls: ["Volume", "Delay", "Mix", "Repeat"]
 
@@ -391,13 +391,13 @@ pedals:
     notes: ["Controls not listed in source CSV"]
 
   - id: way_huge_peircing_moose
-    name: "Way Huge  Peircing Moose"
+    name: "Way Huge Peircing Moose"
     category: "fuzz_octave"
     controls: []
     notes: ["Controls not listed in source CSV"]
 
   - id: way_huge_red_lllama
-    name: "Way Huge  Red Lllama"
+    name: "Way Huge Red Lllama"
     category: "overdrive_fuzz"
     controls: []
     notes: ["Controls not listed in source CSV"]
