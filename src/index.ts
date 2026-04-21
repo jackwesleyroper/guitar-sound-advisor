@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import "dotenv/config";
 import { Command } from "commander";
 import { loadInventory, summariseInventory } from "./inventory.js";
 import { buildSystemPrompt, buildAdviseMessage } from "./prompt.js";
