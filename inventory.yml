@@ -1,0 +1,169 @@
+version: 1
+owner: "jackwesleyroper"
+
+units:
+  knobs: "0-10"
+  time: "ms"
+  gain: "0-10"
+  volume: "0-10"
+
+guitars:
+  - id: strat_sss
+    name: "Fender Stratocaster (SSS)"
+    pickups: ["sss"]
+    pickup_positions: ["bridge", "bridge_middle", "middle", "middle_neck", "neck"]
+    notes: ["bright glassy cleans", "quacky in-between positions", "great for funk, blues, classic rock"]
+
+  - id: tele_ss
+    name: "Fender Telecaster (SS)"
+    pickups: ["ss"]
+    pickup_positions: ["bridge", "neck", "both"]
+    notes: ["twangy bridge", "warm neck", "country, rock, indie"]
+
+  - id: lespaul_hh
+    name: "Gibson Les Paul style (HH)"
+    pickups: ["hh"]
+    pickup_positions: ["bridge", "neck"]
+    notes: ["thick mids", "high output", "classic rock, hard rock, blues-rock"]
+
+  - id: sg_hh
+    name: "Gibson SG style (HH)"
+    pickups: ["hh"]
+    pickup_positions: ["bridge", "neck"]
+    notes: ["aggressive tone", "light weight", "hard rock, punk, blues"]
+
+amps:
+  - id: fender_deluxe
+    name: "Fender Deluxe Reverb style"
+    type: "combo"
+    channels: ["normal", "vibrato"]
+    controls: ["volume", "treble", "bass", "reverb", "vibrato_speed", "vibrato_intensity"]
+    notes: ["clean headroom", "excellent pedal platform", "lush built-in reverb"]
+
+  - id: vox_ac30
+    name: "Vox AC30 style"
+    type: "combo"
+    channels: ["normal", "top_boost"]
+    controls: ["gain", "bass", "treble", "cut", "master"]
+    notes: ["chime and jangle", "edge-of-breakup naturally", "top boost for classic British tone"]
+
+  - id: marshall_plexi
+    name: "Marshall Plexi style"
+    type: "head"
+    channels: ["normal", "high_treble"]
+    controls: ["volume_normal", "volume_high_treble", "treble", "middle", "bass", "presence"]
+    notes: ["classic British crunch", "vintage rock", "loud clean to natural overdrive"]
+
+  - id: mesa_boogie
+    name: "Mesa/Boogie style"
+    type: "combo"
+    channels: ["clean", "lead"]
+    controls: ["gain", "treble", "mid", "bass", "presence", "master"]
+    notes: ["tight high-gain", "scooped metal tones", "versatile clean channel"]
+
+pedals:
+  - id: tuner
+    name: "Chromatic Tuner"
+    category: "utility"
+    controls: []
+    notes: ["always first in chain"]
+
+  - id: wah
+    name: "Wah pedal"
+    category: "filter"
+    controls: ["position"]
+    notes: ["expression pedal", "rocker controls frequency sweep"]
+
+  - id: compressor
+    name: "Compressor"
+    category: "dynamics"
+    controls: ["sustain", "level", "attack", "blend"]
+    notes: ["early in chain", "evens out dynamics", "country chicken picking"]
+
+  - id: boost
+    name: "Clean Boost"
+    category: "boost"
+    controls: ["level"]
+    notes: ["pushes amp into breakup", "or lifts solos"]
+
+  - id: ts_od
+    name: "Tube Screamer style Overdrive"
+    category: "overdrive"
+    controls: ["drive", "tone", "level"]
+    notes: ["mid hump", "classic blues-rock OD", "stacks well with amp gain"]
+
+  - id: blues_driver
+    name: "Blues Driver style OD"
+    category: "overdrive"
+    controls: ["gain", "tone", "level"]
+    notes: ["transparent OD", "light breakup to crunch", "touch-sensitive"]
+
+  - id: rat_dist
+    name: "RAT style Distortion"
+    category: "distortion"
+    controls: ["distortion", "filter", "volume"]
+    notes: ["aggressive distortion", "filter cuts highs", "versatile from OD to heavy dist"]
+
+  - id: big_muff
+    name: "Big Muff style Fuzz"
+    category: "fuzz"
+    controls: ["sustain", "tone", "volume"]
+    notes: ["classic fuzz/sustain", "great for lead tones", "shoegaze, grunge, classic rock"]
+
+  - id: chorus
+    name: "Chorus"
+    category: "modulation"
+    controls: ["rate", "depth", "mix"]
+    notes: ["lush shimmer", "80s clean tones", "doubles guitar sound"]
+
+  - id: phaser
+    name: "Phaser"
+    category: "modulation"
+    controls: ["rate", "depth", "feedback"]
+    notes: ["sweeping phase effect", "classic rock", "funk"]
+
+  - id: flanger
+    name: "Flanger"
+    category: "modulation"
+    controls: ["rate", "depth", "feedback", "mix"]
+    notes: ["jet-plane sweep", "Van Halen-style runs"]
+
+  - id: tremolo
+    name: "Tremolo"
+    category: "modulation"
+    controls: ["rate", "depth"]
+    notes: ["volume oscillation", "surf rock", "classic country"]
+
+  - id: delay
+    name: "Digital Delay"
+    category: "delay"
+    controls: ["time_ms", "feedback", "mix"]
+    notes: ["dotted-eighth for U2 style", "slapback for rockabilly", "long trails for ambient"]
+
+  - id: reverb
+    name: "Reverb"
+    category: "reverb"
+    controls: ["decay", "tone", "mix"]
+    notes: ["hall, room or spring types", "always last in chain before amp"]
+
+  - id: noise_gate
+    name: "Noise Gate"
+    category: "dynamics"
+    controls: ["threshold", "decay"]
+    notes: ["reduces hum and hiss", "especially useful with high-gain setups"]
+
+  - id: eq_pedal
+    name: "Graphic EQ"
+    category: "eq"
+    controls: ["100hz", "200hz", "400hz", "800hz", "1600hz", "3200hz", "6400hz", "level"]
+    notes: ["sculpt tone", "mid-boost for leads", "can go in effects loop"]
+
+cabs_irs:
+  enabled: false
+  items: []
+
+constraints:
+  max_pedals_in_chain: 6
+  must_choose_from_inventory_only: true
+  output_format: "json"
+  allowed_alternatives: true
