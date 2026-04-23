@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎸 Guitar Sound Adviser</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/js-yaml@4/dist/js-yaml.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0d0d0f;
+      --bg-card:     rgba(255,255,255,0.04);
+      --bg-card-hover: rgba(255,255,255,0.07);
+      --border:      rgba(255,255,255,0.08);
+      --border-accent: rgba(245,158,11,0.35);
+      --amber:       #f59e0b;
+      --amber-dim:   #d97706;
+      --amber-glow:  rgba(245,158,11,0.15);
+      --text:        #e8e8ec;
+      --text-muted:  #8a8a9a;
+      --text-dim:    #5a5a6a;
+      --green:       #22c55e;
+      --red:         #ef4444;
+      --yellow:      #eab308;
+      --radius:      12px;
+      --radius-sm:   8px;
+    }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      background-image: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(245,158,11,0.08) 0%, transparent 70%);
+      padding-bottom: 4rem;
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
+
+    /* ── Layout ── */
+    .container { max-width: 860px; margin: 0 auto; padding: 0 1.25rem; }
+
+    /* ── Header ── */
+    header {
+      text-align: center;
+      padding: 3.5rem 1rem 2.5rem;
+      position: relative;
+    }
+    .header-glow {
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 400px; height: 200px;
+      background: radial-gradient(ellipse, rgba(245,158,11,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .logo { font-size: 3rem; line-height: 1; margin-bottom: 0.5rem; }
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #ffffff 0%, var(--amber) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .tagline {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-top: 0.5rem;
+      font-weight: 400;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      transition: border-color 0.2s;
+    }
+    .card:hover { border-color: rgba(255,255,255,0.12); }
+    .card + .card, .card + section, section + .card { margin-top: 1rem; }
+
+    /* ── Section headings ── */
+    .section-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 0.85rem;
+    }
+
+    /* ── API Key panel ── */
+    .settings-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-family: inherit;
+      cursor: pointer;
+      padding: 0.55rem 1rem;
+      transition: all 0.2s;
+      margin: 0 auto 1rem;
+      display: block;
+    }
+    .settings-toggle:hover { border-color: var(--border-accent); color: var(--amber); }
+    .settings-toggle svg { width: 14px; height: 14px; flex-shrink: 0; transition: transform 0.25s; }
+    .settings-toggle.open svg.chevron { transform: rotate(180deg); }
+
+    .settings-panel {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.3s ease, opacity 0.3s ease;
+      opacity: 0;
+    }
+    .settings-panel.open { max-height: 400px; opacity: 1; }
+
+    .key-note {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-top: 0.6rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.4rem;
+    }
+    .key-note svg { width: 12px; height: 12px; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── Form ── */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+    }
+    @media (max-width: 520px) { .form-row { grid-template-columns: 1fr; } }
+
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+    label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    input[type="text"], input[type="password"] {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.95rem;
+      padding: 0.7rem 0.9rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      width: 100%;
+    }
+    input[type="text"]::placeholder, input[type="password"]::placeholder { color: var(--text-dim); }
+    input[type="text"]:focus, input[type="password"]:focus {
+      border-color: var(--amber-dim);
+      box-shadow: 0 0 0 3px rgba(245,158,11,0.1);
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--amber) 0%, var(--amber-dim) 100%);
+      color: #0d0d0f;
+      font-size: 0.95rem;
+      padding: 0.75rem 1.75rem;
+      width: 100%;
+      margin-top: 1rem;
+      box-shadow: 0 4px 20px rgba(245,158,11,0.2);
+    }
+    .btn-primary:hover:not(:disabled) {
+      box-shadow: 0 6px 30px rgba(245,158,11,0.35);
+      transform: translateY(-1px);
+    }
+    .btn-primary:active:not(:disabled) { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-sm {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      padding: 0.4rem 0.85rem;
+    }
+    .btn-sm:hover { border-color: var(--border-accent); color: var(--amber); }
+
+    /* ── Spinner ── */
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(13,13,15,0.3);
+      border-top-color: #0d0d0f;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Results ── */
+    #results {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      pointer-events: none;
+    }
+    #results.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .result-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .result-title span { color: var(--amber); }
+
+    /* ── Confidence ── */
+    .confidence-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .confidence-label { font-size: 0.8rem; color: var(--text-muted); white-space: nowrap; }
+    .confidence-track {
+      flex: 1;
+      height: 8px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .confidence-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.6s ease;
+    }
+    .confidence-pct {
+      font-size: 0.8rem;
+      font-weight: 600;
+      min-width: 36px;
+      text-align: right;
+    }
+
+    /* ── Collapsible assumptions ── */
+    .collapsible-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      user-select: none;
+      list-style: none;
+      padding: 0;
+    }
+    .collapsible-header::-webkit-details-marker { display: none; }
+    .collapsible-title {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      flex: 1;
+    }
+    details[open] .chevron-details { transform: rotate(180deg); }
+    .chevron-details {
+      width: 14px; height: 14px;
+      color: var(--text-dim);
+      transition: transform 0.2s;
+    }
+
+    .assumption-list {
+      list-style: none;
+      margin-top: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+    .assumption-list li {
+      font-size: 0.83rem;
+      color: var(--text-muted);
+      padding: 0.5rem 0.75rem;
+      background: rgba(234,179,8,0.06);
+      border-left: 2px solid rgba(234,179,8,0.3);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    }
+
+    /* ── Rig cards ── */
+    .rig-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.85rem;
+    }
+    @media (max-width: 680px) { .rig-grid { grid-template-columns: 1fr; } }
+
+    .rig-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.1rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .rig-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--amber) 0%, transparent 100%);
+      opacity: 0.5;
+    }
+    .rig-card-icon { font-size: 1.3rem; margin-bottom: 0.4rem; }
+    .rig-card-type {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 0.25rem;
+    }
+    .rig-card-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.75rem;
+      line-height: 1.3;
+    }
+
+    /* ── Dial indicators ── */
+    .dials-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.5rem;
+    }
+    .dial-wrap { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; }
+    .dial {
+      width: 44px; height: 44px;
+      position: relative;
+    }
+    .dial svg { width: 100%; height: 100%; }
+    .dial-label {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      text-align: center;
+    }
+    .dial-value {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    /* ── Knob bar (amp settings) ── */
+    .knob-table { width: 100%; border-collapse: collapse; }
+    .knob-table tr + tr td { padding-top: 0.45rem; }
+    .knob-table td { vertical-align: middle; }
+    .knob-name {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      padding-right: 0.6rem;
+      white-space: nowrap;
+      text-transform: capitalize;
+    }
+    .knob-val {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-align: right;
+      padding-left: 0.5rem;
+      white-space: nowrap;
+    }
+    .knob-bar-track {
+      height: 5px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 3px;
+      overflow: hidden;
+      min-width: 60px;
+    }
+    .knob-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--amber) 0%, var(--amber-dim) 100%);
+      border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+
+    /* ── Pedal chain ── */
+    .pedal-list { display: flex; flex-direction: column; gap: 0.55rem; }
+    .pedal-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      background: rgba(255,255,255,0.03);
+      border-radius: var(--radius-sm);
+      padding: 0.6rem 0.75rem;
+      border: 1px solid var(--border);
+    }
+    .pedal-idx {
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      min-width: 18px;
+      padding-top: 2px;
+    }
+    .pedal-body { flex: 1; min-width: 0; }
+    .pedal-header { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    .pedal-name { font-size: 0.83rem; font-weight: 500; color: var(--text); }
+    .badge {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+    .badge-on  { background: rgba(34,197,94,0.15);  color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+    .badge-off { background: rgba(239,68,68,0.12);  color: var(--red);   border: 1px solid rgba(239,68,68,0.25); }
+
+    .pedal-settings {
+      margin-top: 0.4rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+    }
+    .pedal-setting-chip {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.15rem 0.45rem;
+    }
+    .pedal-setting-chip span { color: var(--text-muted); font-weight: 500; }
+
+    /* ── How-to & Couldn't-match ── */
+    .step-list { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+    .step-list li {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .step-num {
+      display: flex; align-items: center; justify-content: center;
+      min-width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--amber-glow);
+      border: 1px solid var(--border-accent);
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--amber);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .icon-bullet { font-size: 1rem; flex-shrink: 0; margin-top: 0px; }
+
+    .miss-list { list-style: none; display: flex; flex-direction: column; gap: 0.45rem; }
+    .miss-list li {
+      font-size: 0.83rem;
+      color: var(--text-muted);
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-start;
+    }
+
+    /* ── Error card ── */
+    .error-card {
+      background: rgba(239,68,68,0.07);
+      border: 1px solid rgba(239,68,68,0.25);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      gap: 0.85rem;
+      align-items: flex-start;
+    }
+    .error-icon { font-size: 1.25rem; flex-shrink: 0; }
+    .error-title { font-size: 0.9rem; font-weight: 600; color: #fca5a5; margin-bottom: 0.25rem; }
+    .error-msg { font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; }
+
+    /* ── Utility ── */
+    .hidden { display: none !important; }
+    .mt-1 { margin-top: 1rem; }
+    .mt-075 { margin-top: 0.75rem; }
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 1.25rem 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─────────────── HEADER ─────────────── -->
+<header>
+  <div class="header-glow"></div>
+  <div class="logo">🎸</div>
+  <h1>Guitar Sound Adviser</h1>
+  <p class="tagline">AI-powered tone recommendations from your personal gear inventory</p>
+</header>
+
+<div class="container">
+
+  <!-- ─────────────── SETTINGS (API KEY) ─────────────── -->
+  <button class="settings-toggle" id="settingsToggle" aria-expanded="false" aria-controls="settingsPanel">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+    </svg>
+    <span id="settingsLabel">⚙️ API Settings</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="6 9 12 15 18 9"/>
+    </svg>
+  </button>
+
+  <div class="settings-panel" id="settingsPanel" role="region">
+    <div class="card">
+      <div class="section-label">OpenAI Configuration</div>
+      <div class="form-group">
+        <label for="apiKeyInput">API Key</label>
+        <div style="display:flex;gap:0.5rem;">
+          <input type="password" id="apiKeyInput" placeholder="sk-..." autocomplete="off" />
+          <button class="btn btn-sm" id="saveKeyBtn">Save</button>
+        </div>
+      </div>
+      <div class="form-group mt-075">
+        <label for="modelInput">Model</label>
+        <input type="text" id="modelInput" placeholder="gpt-4o" />
+      </div>
+      <p class="key-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Your API key is stored only in your browser's localStorage and is sent directly to OpenAI — it never passes through any third-party server.
+      </p>
+    </div>
+  </div>
+
+  <!-- ─────────────── INPUT FORM ─────────────── -->
+  <div class="card mt-1">
+    <div class="section-label">Tone Request</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="artistInput">Artist</label>
+        <input type="text" id="artistInput" placeholder="e.g. Jimi Hendrix" />
+      </div>
+      <div class="form-group">
+        <label for="songInput">Song</label>
+        <input type="text" id="songInput" placeholder="e.g. All Along the Watchtower" />
+      </div>
+    </div>
+    <button class="btn btn-primary" id="submitBtn">
+      <span id="btnText">🎯 Get Tone Advice</span>
+      <span class="spinner hidden" id="btnSpinner"></span>
+    </button>
+  </div>
+
+  <!-- ─────────────── ERROR CARD ─────────────── -->
+  <div id="errorCard" class="error-card mt-1 hidden">
+    <div class="error-icon">⚠️</div>
+    <div>
+      <div class="error-title" id="errorTitle">Something went wrong</div>
+      <div class="error-msg" id="errorMsg"></div>
+    </div>
+  </div>
+
+  <!-- ─────────────── RESULTS ─────────────── -->
+  <section id="results" aria-live="polite">
+
+    <!-- Header -->
+    <div class="card mt-1">
+      <div class="result-header">
+        <div class="result-title" id="resultTitle">Tone advice for <span id="resultSong"></span> by <span id="resultArtist"></span></div>
+      </div>
+
+      <!-- Confidence -->
+      <div class="confidence-bar-wrap">
+        <span class="confidence-label">Confidence</span>
+        <div class="confidence-track">
+          <div class="confidence-fill" id="confidenceFill" style="width:0%"></div>
+        </div>
+        <span class="confidence-pct" id="confidencePct">-</span>
+      </div>
+    </div>
+
+    <!-- Assumptions -->
+    <div class="card mt-1" id="assumptionsCard">
+      <details>
+        <summary class="collapsible-header">
+          <span style="font-size:1rem;">⚠️</span>
+          <span class="collapsible-title" id="assumptionsCount">Assumptions</span>
+          <svg class="chevron-details" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </summary>
+        <ul class="assumption-list" id="assumptionsList"></ul>
+      </details>
+    </div>
+
+    <!-- Rig -->
+    <div class="card mt-1">
+      <div class="section-label">Recommended Rig</div>
+      <div class="rig-grid">
+
+        <!-- Guitar -->
+        <div class="rig-card" id="guitarCard">
+          <div class="rig-card-icon">🎸</div>
+          <div class="rig-card-type">Guitar</div>
+          <div class="rig-card-name" id="guitarName">—</div>
+          <div id="guitarPickup" style="font-size:0.75rem;color:var(--text-dim);margin-bottom:0.6rem;"></div>
+          <div class="dials-row" id="guitarDials"></div>
+        </div>
+
+        <!-- Amp -->
+        <div class="rig-card" id="ampCard">
+          <div class="rig-card-icon">🔊</div>
+          <div class="rig-card-type">Amplifier</div>
+          <div class="rig-card-name" id="ampName">—</div>
+          <div id="ampChannel" style="font-size:0.75rem;color:var(--text-dim);margin-bottom:0.6rem;"></div>
+          <table class="knob-table" id="ampSettings"></table>
+        </div>
+
+        <!-- Pedals -->
+        <div class="rig-card" id="pedalsCard">
+          <div class="rig-card-icon">🎛️</div>
+          <div class="rig-card-type">Pedal Chain</div>
+          <div class="pedal-list" id="pedalList"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- How to dial in -->
+    <div class="card mt-1">
+      <div class="section-label">🎯 How to Dial In</div>
+      <ol class="step-list" id="howToList"></ol>
+    </div>
+
+    <!-- What I couldn't match -->
+    <div class="card mt-1 hidden" id="couldntMatchCard">
+      <div class="section-label">❌ What I Couldn't Match</div>
+      <ul class="miss-list" id="couldntMatchList"></ul>
+    </div>
+
+  </section>
+
+</div><!-- /.container -->
+
+<script>
+// ─── Constants ───────────────────────────────────────────────────────────────
+const LS_KEY_APIKEY = 'gsa_openai_key';
+const LS_KEY_MODEL  = 'gsa_openai_model';
+const INVENTORY_URL = 'https://raw.githubusercontent.com/jackwesleyroper/guitar-sound-advisor/main/inventory.yml';
+
+// ─── State ───────────────────────────────────────────────────────────────────
+let inventory = null;
+
+// ─── DOM refs ────────────────────────────────────────────────────────────────
+const settingsToggle  = document.getElementById('settingsToggle');
+const settingsPanel   = document.getElementById('settingsPanel');
+const settingsLabel   = document.getElementById('settingsLabel');
+const apiKeyInput     = document.getElementById('apiKeyInput');
+const modelInput      = document.getElementById('modelInput');
+const saveKeyBtn      = document.getElementById('saveKeyBtn');
+const artistInput     = document.getElementById('artistInput');
+const songInput       = document.getElementById('songInput');
+const submitBtn       = document.getElementById('submitBtn');
+const btnText         = document.getElementById('btnText');
+const btnSpinner      = document.getElementById('btnSpinner');
+const errorCard       = document.getElementById('errorCard');
+const errorTitle      = document.getElementById('errorTitle');
+const errorMsg        = document.getElementById('errorMsg');
+const resultsSection  = document.getElementById('results');
+
+// ─── Init ────────────────────────────────────────────────────────────────────
+(function init() {
+  const savedKey   = localStorage.getItem(LS_KEY_APIKEY) || '';
+  const savedModel = localStorage.getItem(LS_KEY_MODEL)  || '';
+  if (savedKey)   apiKeyInput.value = savedKey;
+  if (savedModel) modelInput.value  = savedModel;
+  updateSettingsLabel();
+})();
+
+// ─── Settings toggle ─────────────────────────────────────────────────────────
+settingsToggle.addEventListener('click', () => {
+  const isOpen = settingsPanel.classList.toggle('open');
+  settingsToggle.classList.toggle('open', isOpen);
+  settingsToggle.setAttribute('aria-expanded', isOpen);
+});
+
+saveKeyBtn.addEventListener('click', () => {
+  const key   = apiKeyInput.value.trim();
+  const model = modelInput.value.trim();
+  if (key)   localStorage.setItem(LS_KEY_APIKEY, key);
+  if (model) localStorage.setItem(LS_KEY_MODEL,  model);
+  else       localStorage.removeItem(LS_KEY_MODEL);
+  updateSettingsLabel();
+  // Close panel
+  settingsPanel.classList.remove('open');
+  settingsToggle.classList.remove('open');
+  settingsToggle.setAttribute('aria-expanded', 'false');
+});
+
+function updateSettingsLabel() {
+  const key = localStorage.getItem(LS_KEY_APIKEY);
+  settingsLabel.textContent = key ? '⚙️ API Settings (key saved ✓)' : '⚙️ API Settings';
+}
+
+// Also save on Enter in key input
+apiKeyInput.addEventListener('keydown', e => { if (e.key === 'Enter') saveKeyBtn.click(); });
+
+// ─── Inventory loading ───────────────────────────────────────────────────────
+async function ensureInventory() {
+  if (inventory) return inventory;
+  const res = await fetch(INVENTORY_URL);
+  if (!res.ok) throw new Error(`Failed to fetch inventory (HTTP ${res.status})`);
+  const text = await res.text();
+  inventory = jsyaml.load(text);
+  return inventory;
+}
+
+function lookupName(id, inv) {
+  if (!inv || !id) return id;
+  const all = [
+    ...(inv.guitars || []),
+    ...(inv.amps    || []),
+    ...(inv.pedals  || []),
+  ];
+  const found = all.find(item => item.id === id);
+  return found ? found.name : id;
+}
+
+// ─── Prompt builders (mirrors src/prompt.ts exactly) ────────────────────────
+function buildSystemPrompt(inv) {
+  const inventoryYaml = jsyaml.dump(inv, { lineWidth: 120 });
+  return `You are an expert guitar tone adviser. Your job is to help guitarists achieve a specific tone by recommending the best combination of guitar, amplifier, and pedals from their personal inventory.
+
+STRICT RULES — you MUST follow all of them:
+1. You MUST only select guitars, amps, and pedals that have IDs present in the provided inventory below. Do NOT invent or suggest gear that is not in the inventory.
+2. If the ideal piece of gear for a tone is not in the inventory, pick the closest available alternative and explain the trade-off.
+3. You MUST return ONLY valid JSON — no markdown, no code blocks, no extra text before or after the JSON object.
+4. All knob settings MUST use the scale 0–10 unless the control implies specific units (e.g. time_ms uses milliseconds).
+5. Limit pedal_chain to at most ${inv.constraints?.max_pedals_in_chain ?? 8} pedals.
+6. confidence is a float between 0 and 1 representing how well the inventory can replicate the target tone.
+
+OUTPUT JSON SCHEMA (return exactly this shape):
+{
+  "request": { "artist": "string", "song": "string" },
+  "assumptions": ["string", ...],
+  "rig": {
+    "guitar": {
+      "id": "string (must be in inventory)",
+      "pickup_position": "string (optional)",
+      "tone_knob": number (0-10, optional),
+      "volume_knob": number (0-10, optional)
+    },
+    "amp": {
+      "id": "string (must be in inventory)",
+      "channel": "string (optional)",
+      "settings": { "<control_name>": number or string, ... }
+    },
+    "pedal_chain": [
+      { "id": "string (must be in inventory)", "on": boolean, "settings": { "<control_name>": number or string, ... } },
+      ...
+    ]
+  },
+  "how_to_dial_in": ["string", ...],
+  "what_i_couldnt_match": ["string", ...],
+  "confidence": number (0.0 to 1.0)
+}
+
+INVENTORY:
+\`\`\`yaml
+${inventoryYaml}\`\`\``;
+}
+
+function buildAdviseMessage(artist, song) {
+  return `Please advise me on the best guitar tone setup for:
+Artist: ${artist}
+Song: ${song}
+
+Use only the gear in my inventory. Return JSON only.`;
+}
+
+// ─── Submit ──────────────────────────────────────────────────────────────────
+submitBtn.addEventListener('click', handleSubmit);
+artistInput.addEventListener('keydown', e => { if (e.key === 'Enter') songInput.focus(); });
+songInput.addEventListener('keydown',   e => { if (e.key === 'Enter') handleSubmit(); });
+
+async function handleSubmit() {
+  const apiKey = (apiKeyInput.value.trim()) || localStorage.getItem(LS_KEY_APIKEY) || '';
+  const artist = artistInput.value.trim();
+  const song   = songInput.value.trim();
+
+  hideError();
+  hideResults();
+
+  if (!apiKey) {
+    showError('API Key Required', 'Please enter your OpenAI API key in the settings panel above and click Save.');
+    settingsPanel.classList.add('open');
+    settingsToggle.classList.add('open');
+    settingsToggle.setAttribute('aria-expanded', 'true');
+    return;
+  }
+  if (!artist || !song) {
+    showError('Missing Input', 'Please enter both an artist name and a song title.');
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const inv = await ensureInventory();
+    const systemPrompt = buildSystemPrompt(inv);
+    const userMessage  = buildAdviseMessage(artist, song);
+    const model        = modelInput.value.trim() || localStorage.getItem(LS_KEY_MODEL) || 'gpt-4o';
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        temperature: 0.3,
+        response_format: { type: 'json_object' },
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user',   content: userMessage  },
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      let detail = '';
+      try { const errorData = await response.json(); detail = errorData.error?.message || ''; } catch(_) {}
+      throw new Error(`OpenAI API error (HTTP ${response.status})${detail ? ': ' + detail : ''}`);
+    }
+
+    const data   = await response.json();
+    const raw    = data.choices?.[0]?.message?.content || '';
+    let result;
+    try { result = JSON.parse(raw); }
+    catch (e) { throw new Error('Failed to parse JSON response from the model. Raw output: ' + raw.slice(0, 300) + (raw.length > 300 ? '… (truncated)' : '')); }
+
+    renderResults(result, inv, artist, song);
+
+  } catch (err) {
+    showError('Error', err.message || String(err));
+  } finally {
+    setLoading(false);
+  }
+}
+
+// ─── Loading state ───────────────────────────────────────────────────────────
+function setLoading(on) {
+  submitBtn.disabled = on;
+  btnText.classList.toggle('hidden', on);
+  btnSpinner.classList.toggle('hidden', !on);
+}
+
+// ─── Error display ───────────────────────────────────────────────────────────
+function showError(title, msg) {
+  errorTitle.textContent = title;
+  errorMsg.textContent   = msg;
+  errorCard.classList.remove('hidden');
+}
+function hideError() { errorCard.classList.add('hidden'); }
+
+// ─── Results rendering ───────────────────────────────────────────────────────
+function hideResults() {
+  resultsSection.classList.remove('visible');
+  resultsSection.style.pointerEvents = 'none';
+}
+
+function renderResults(result, inv, artist, song) {
+  // Header
+  document.getElementById('resultSong').textContent   = result.request?.song   || song;
+  document.getElementById('resultArtist').textContent = result.request?.artist || artist;
+
+  // Confidence
+  const conf     = typeof result.confidence === 'number' ? result.confidence : 0;
+  const confPct  = Math.round(conf * 100);
+  const fillEl   = document.getElementById('confidenceFill');
+  const pctEl    = document.getElementById('confidencePct');
+  const color    = conf >= 0.7 ? '#22c55e' : conf >= 0.4 ? '#eab308' : '#ef4444';
+  fillEl.style.width      = confPct + '%';
+  fillEl.style.background = color;
+  pctEl.style.color       = color;
+  pctEl.textContent       = confPct + '%';
+
+  // Assumptions
+  const assumptions = Array.isArray(result.assumptions) ? result.assumptions : [];
+  const aList = document.getElementById('assumptionsList');
+  aList.innerHTML = '';
+  assumptions.forEach(a => {
+    const li = document.createElement('li');
+    li.textContent = a;
+    aList.appendChild(li);
+  });
+  document.getElementById('assumptionsCount').textContent =
+    `Assumptions (${assumptions.length})`;
+
+  // Guitar
+  const guitar = result.rig?.guitar || {};
+  document.getElementById('guitarName').textContent = lookupName(guitar.id, inv);
+  const gpEl = document.getElementById('guitarPickup');
+  gpEl.textContent = guitar.pickup_position ? 'Pickup: ' + guitar.pickup_position : '';
+  const dialsEl = document.getElementById('guitarDials');
+  dialsEl.innerHTML = '';
+  if (typeof guitar.tone_knob   === 'number') dialsEl.appendChild(makeDial('Tone',   guitar.tone_knob));
+  if (typeof guitar.volume_knob === 'number') dialsEl.appendChild(makeDial('Volume', guitar.volume_knob));
+
+  // Amp
+  const amp = result.rig?.amp || {};
+  document.getElementById('ampName').textContent = lookupName(amp.id, inv);
+  const acEl = document.getElementById('ampChannel');
+  acEl.textContent = amp.channel ? 'Channel: ' + amp.channel : '';
+  const ampSettingsEl = document.getElementById('ampSettings');
+  ampSettingsEl.innerHTML = '';
+  const settings = amp.settings || {};
+  Object.entries(settings).forEach(([k, v]) => {
+    const tr = document.createElement('tr');
+    const isNum = typeof v === 'number';
+    tr.innerHTML = `
+      <td class="knob-name">${escHtml(k)}</td>
+      <td style="width:100%;padding:0 0.4rem;">
+        ${isNum
+          ? `<div class="knob-bar-track"><div class="knob-bar-fill" style="width:${Math.min(100, v / 10 * 100)}%"></div></div>`
+          : ''}
+      </td>
+      <td class="knob-val">${escHtml(String(v))}</td>`;
+    ampSettingsEl.appendChild(tr);
+  });
+
+  // Pedals
+  const pedalChain = Array.isArray(result.rig?.pedal_chain) ? result.rig.pedal_chain : [];
+  const pedalListEl = document.getElementById('pedalList');
+  pedalListEl.innerHTML = '';
+  pedalChain.forEach((pedal, idx) => {
+    const name = lookupName(pedal.id, inv);
+    const div  = document.createElement('div');
+    div.className = 'pedal-item';
+
+    const pedalSettings = pedal.settings || {};
+    const chipsHtml = Object.entries(pedalSettings).map(([k, v]) =>
+      `<span class="pedal-setting-chip">${escHtml(k)}: <span>${escHtml(String(v))}</span></span>`
+    ).join('');
+
+    div.innerHTML = `
+      <div class="pedal-idx">${idx + 1}</div>
+      <div class="pedal-body">
+        <div class="pedal-header">
+          <span class="pedal-name">${escHtml(name)}</span>
+          <span class="badge ${pedal.on ? 'badge-on' : 'badge-off'}">${pedal.on ? 'ON' : 'OFF'}</span>
+        </div>
+        ${chipsHtml ? `<div class="pedal-settings">${chipsHtml}</div>` : ''}
+      </div>`;
+    pedalListEl.appendChild(div);
+  });
+
+  // How to dial in
+  const howTo = Array.isArray(result.how_to_dial_in) ? result.how_to_dial_in : [];
+  const howToEl = document.getElementById('howToList');
+  howToEl.innerHTML = '';
+  howTo.forEach((step, i) => {
+    const li = document.createElement('li');
+    li.innerHTML = `<div class="step-num">${i + 1}</div><span>${escHtml(step)}</span>`;
+    howToEl.appendChild(li);
+  });
+
+  // What I couldn't match
+  const couldnt = Array.isArray(result.what_i_couldnt_match) ? result.what_i_couldnt_match.filter(Boolean) : [];
+  const couldntCard = document.getElementById('couldntMatchCard');
+  if (couldnt.length > 0) {
+    const couldntEl = document.getElementById('couldntMatchList');
+    couldntEl.innerHTML = '';
+    couldnt.forEach(item => {
+      const li = document.createElement('li');
+      li.innerHTML = `<span class="icon-bullet">❌</span><span>${escHtml(item)}</span>`;
+      couldntEl.appendChild(li);
+    });
+    couldntCard.classList.remove('hidden');
+  } else {
+    couldntCard.classList.add('hidden');
+  }
+
+  // Animate in
+  resultsSection.style.display = '';
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      resultsSection.classList.add('visible');
+      resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+}
+
+// ─── Dial SVG helper ─────────────────────────────────────────────────────────
+function makeDial(label, value) {
+  const wrap   = document.createElement('div');
+  wrap.className = 'dial-wrap';
+  const pct    = Math.max(0, Math.min(10, value)) / 10;
+  // Arc from -135° to +135° (270° sweep)
+  const startAngle = -135 * Math.PI / 180;
+  const sweep      = 270  * Math.PI / 180;
+  const angle      = startAngle + sweep * pct;
+  const cx = 22, cy = 22, r = 14;
+  const x1 = cx + r * Math.cos(startAngle);
+  const y1 = cy + r * Math.sin(startAngle);
+  const x2 = cx + r * Math.cos(angle);
+  const y2 = cy + r * Math.sin(angle);
+  const largeArc = sweep * pct > Math.PI ? 1 : 0;
+  const trackX2 = cx + r * Math.cos(startAngle + sweep);
+  const trackY2 = cy + r * Math.sin(startAngle + sweep);
+  wrap.innerHTML = `
+    <div class="dial">
+      <svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
+        <path d="M${x1.toFixed(2)},${y1.toFixed(2)} A${r},${r} 0 1,1 ${trackX2.toFixed(2)},${trackY2.toFixed(2)}"
+              fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="3" stroke-linecap="round"/>
+        ${pct > 0 ? `<path d="M${x1.toFixed(2)},${y1.toFixed(2)} A${r},${r} 0 ${largeArc},1 ${x2.toFixed(2)},${y2.toFixed(2)}"
+              fill="none" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>` : ''}
+        <text x="22" y="26" text-anchor="middle" font-size="9" font-weight="600" fill="#e8e8ec" font-family="Inter,sans-serif">${value}</text>
+      </svg>
+    </div>
+    <div class="dial-label">${escHtml(label)}</div>`;
+  return wrap;
+}
+
+// ─── Utility ─────────────────────────────────────────────────────────────────
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+</script>
+</body>
+</html>
