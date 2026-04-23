@@ -89,4 +89,20 @@ inventoryCmd
     }
   });
 
+// ─── tone web ─────────────────────────────────────────────────────────────────
+
+program
+  .command("web")
+  .description("Start the inventory web UI")
+  .option("-p, --port <number>", "Port to listen on", "3000")
+  .action(async (options: { port: string }) => {
+    const port = parseInt(options.port, 10);
+    if (isNaN(port) || port < 1 || port > 65535) {
+      console.error(`❌ Invalid port: "${options.port}". Must be a number between 1 and 65535.`);
+      process.exit(1);
+    }
+    const { startWebServer } = await import("./web.js");
+    startWebServer(port);
+  });
+
 program.parse(process.argv);
