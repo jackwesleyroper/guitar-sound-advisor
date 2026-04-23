@@ -351,6 +351,60 @@
       border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
     }
 
+    /* ── Artist info ── */
+    .artist-info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-top: 0.85rem;
+    }
+    @media (max-width: 520px) { .artist-info-grid { grid-template-columns: 1fr; } }
+
+    .artist-info-overview {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 0.75rem;
+    }
+
+    .artist-info-item {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.65rem 0.85rem;
+    }
+
+    .artist-info-item-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 0.3rem;
+    }
+
+    .artist-info-item-value {
+      font-size: 0.83rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .genre-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+    }
+
+    .genre-tag {
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      background: var(--amber-glow);
+      border: 1px solid var(--border-accent);
+      color: var(--amber);
+    }
+
     /* ── Rig cards ── */
     .rig-grid {
       display: grid;
@@ -681,16 +735,24 @@
       </div>
     </div>
 
-    <!-- Assumptions -->
-    <div class="card mt-1" id="assumptionsCard">
-      <details>
-        <summary class="collapsible-header">
-          <span style="font-size:1rem;">⚠️</span>
-          <span class="collapsible-title" id="assumptionsCount">Assumptions</span>
-          <svg class="chevron-details" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </summary>
-        <ul class="assumption-list" id="assumptionsList"></ul>
-      </details>
+    <!-- Artist Information -->
+    <div class="card mt-1 hidden" id="artistInfoCard">
+      <div class="section-label">🎤 Artist Information</div>
+      <p class="artist-info-overview" id="artistOverview"></p>
+      <div class="artist-info-grid">
+        <div class="artist-info-item">
+          <div class="artist-info-item-label">Genres</div>
+          <div class="genre-tags" id="artistGenres"></div>
+        </div>
+        <div class="artist-info-item">
+          <div class="artist-info-item-label">Known For</div>
+          <div class="artist-info-item-value" id="artistKnownFor"></div>
+        </div>
+        <div class="artist-info-item" style="grid-column: 1 / -1;">
+          <div class="artist-info-item-label">Signature Tone</div>
+          <div class="artist-info-item-value" id="artistSignatureTone"></div>
+        </div>
+      </div>
     </div>
 
     <!-- Rig -->
@@ -736,6 +798,18 @@
     <div class="card mt-1 hidden" id="couldntMatchCard">
       <div class="section-label">❌ What I Couldn't Match</div>
       <ul class="miss-list" id="couldntMatchList"></ul>
+    </div>
+
+    <!-- Assumptions -->
+    <div class="card mt-1" id="assumptionsCard">
+      <details>
+        <summary class="collapsible-header">
+          <span style="font-size:1rem;">⚠️</span>
+          <span class="collapsible-title" id="assumptionsCount">Assumptions</span>
+          <svg class="chevron-details" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </summary>
+        <ul class="assumption-list" id="assumptionsList"></ul>
+      </details>
     </div>
 
   </section>
@@ -891,6 +965,12 @@ STRICT RULES — you MUST follow all of them:
 OUTPUT JSON SCHEMA (return exactly this shape):
 {
   "request": { "artist": "string", "song": "string" },
+  "artist_info": {
+    "overview": "string (2-3 sentence biography/overview of the artist)",
+    "genres": ["string", ...],
+    "known_for": "string (key albums, songs, or career highlights)",
+    "signature_tone": "string (description of the artist's characteristic guitar tone)"
+  },
   "assumptions": ["string", ...],
   "rig": {
     "guitar": {
@@ -1067,6 +1147,7 @@ function hideError() { errorCard.classList.add('hidden'); }
 function hideResults() {
   resultsSection.classList.remove('visible');
   resultsSection.style.pointerEvents = 'none';
+  document.getElementById('artistInfoCard').classList.add('hidden');
 }
 
 function renderResults(result, inv, artist, song) {
@@ -1084,6 +1165,25 @@ function renderResults(result, inv, artist, song) {
   fillEl.style.background = color;
   pctEl.style.color       = color;
   pctEl.textContent       = confPct + '%';
+
+  // Artist info
+  const artistInfoCard = document.getElementById('artistInfoCard');
+  if (result.artist_info) {
+    document.getElementById('artistOverview').textContent = result.artist_info.overview || '';
+    const genresEl = document.getElementById('artistGenres');
+    genresEl.innerHTML = '';
+    (result.artist_info.genres || []).forEach(g => {
+      const tag = document.createElement('span');
+      tag.className = 'genre-tag';
+      tag.textContent = g;
+      genresEl.appendChild(tag);
+    });
+    document.getElementById('artistKnownFor').textContent = result.artist_info.known_for || '';
+    document.getElementById('artistSignatureTone').textContent = result.artist_info.signature_tone || '';
+    artistInfoCard.classList.remove('hidden');
+  } else {
+    artistInfoCard.classList.add('hidden');
+  }
 
   // Assumptions
   const assumptions = Array.isArray(result.assumptions) ? result.assumptions : [];
