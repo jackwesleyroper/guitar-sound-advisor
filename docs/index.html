@@ -130,7 +130,42 @@
       transition: max-height 0.3s ease, opacity 0.3s ease;
       opacity: 0;
     }
-    .settings-panel.open { max-height: 400px; opacity: 1; }
+    .settings-panel.open { max-height: 1000px; opacity: 1; }
+
+    .provider-selector {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .provider-tab {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.4rem 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .provider-tab:hover { border-color: var(--border-accent); color: var(--amber); }
+    .provider-tab input[type="radio"] { display: none; }
+    .provider-tab.active {
+      border-color: var(--border-accent);
+      color: var(--amber);
+      background: var(--amber-glow);
+    }
+    .provider-section.disabled {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+    .provider-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 1.25rem 0;
+    }
 
     .key-note {
       font-size: 0.75rem;
@@ -545,22 +580,57 @@
 
   <div class="settings-panel" id="settingsPanel" role="region">
     <div class="card">
-      <div class="section-label">OpenAI Configuration</div>
-      <div class="form-group">
-        <label for="apiKeyInput">API Key</label>
-        <div style="display:flex;gap:0.5rem;">
+      <!-- Provider selector -->
+      <div class="provider-selector">
+        <label class="provider-tab active" id="tabOpenAI">
+          <input type="radio" name="provider" id="providerOpenAI" value="openai" checked />
+          OpenAI
+        </label>
+        <label class="provider-tab" id="tabGoogle">
+          <input type="radio" name="provider" id="providerGoogle" value="google" />
+          Google (Gemini)
+        </label>
+      </div>
+
+      <!-- OpenAI section -->
+      <div id="openaiSection" class="provider-section">
+        <div class="section-label">OpenAI Configuration</div>
+        <div class="form-group">
+          <label for="apiKeyInput">API Key</label>
           <input type="password" id="apiKeyInput" placeholder="sk-..." autocomplete="off" />
-          <button class="btn btn-sm" id="saveKeyBtn">Save</button>
         </div>
+        <div class="form-group mt-075">
+          <label for="modelInput">Model</label>
+          <input type="text" id="modelInput" placeholder="gpt-4o" />
+        </div>
+        <p class="key-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Your API key is stored only in your browser's localStorage and is sent directly to OpenAI — it never passes through any third-party server.
+        </p>
       </div>
-      <div class="form-group mt-075">
-        <label for="modelInput">Model</label>
-        <input type="text" id="modelInput" placeholder="gpt-4o" />
+
+      <div class="provider-divider"></div>
+
+      <!-- Google Gemini section -->
+      <div id="googleSection" class="provider-section disabled">
+        <div class="section-label">Google Gemini Configuration</div>
+        <div class="form-group">
+          <label for="googleApiKeyInput">API Key</label>
+          <input type="password" id="googleApiKeyInput" placeholder="AIza..." autocomplete="off" />
+        </div>
+        <div class="form-group mt-075">
+          <label for="googleModelInput">Model</label>
+          <input type="text" id="googleModelInput" placeholder="gemini-2.0-flash" />
+        </div>
+        <p class="key-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Your API key is stored only in your browser's localStorage and is sent directly to Google — it never passes through any third-party server.
+        </p>
       </div>
-      <p class="key-note">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        Your API key is stored only in your browser's localStorage and is sent directly to OpenAI — it never passes through any third-party server.
-      </p>
+
+      <div style="margin-top:1rem;">
+        <button class="btn btn-sm" id="saveKeyBtn">Save</button>
+      </div>
     </div>
   </div>
 
@@ -674,38 +744,73 @@
 
 <script>
 // ─── Constants ───────────────────────────────────────────────────────────────
-const LS_KEY_APIKEY = 'gsa_openai_key';
-const LS_KEY_MODEL  = 'gsa_openai_model';
+const LS_KEY_APIKEY       = 'gsa_openai_key';
+const LS_KEY_MODEL        = 'gsa_openai_model';
+const LS_KEY_GOOGLE_KEY   = 'gsa_google_key';
+const LS_KEY_GOOGLE_MODEL = 'gsa_google_model';
+const LS_KEY_PROVIDER     = 'gsa_provider';
 const INVENTORY_URL = 'https://raw.githubusercontent.com/jackwesleyroper/guitar-sound-advisor/main/inventory.yml';
 
 // ─── State ───────────────────────────────────────────────────────────────────
 let inventory = null;
 
 // ─── DOM refs ────────────────────────────────────────────────────────────────
-const settingsToggle  = document.getElementById('settingsToggle');
-const settingsPanel   = document.getElementById('settingsPanel');
-const settingsLabel   = document.getElementById('settingsLabel');
-const apiKeyInput     = document.getElementById('apiKeyInput');
-const modelInput      = document.getElementById('modelInput');
-const saveKeyBtn      = document.getElementById('saveKeyBtn');
-const artistInput     = document.getElementById('artistInput');
-const songInput       = document.getElementById('songInput');
-const submitBtn       = document.getElementById('submitBtn');
-const btnText         = document.getElementById('btnText');
-const btnSpinner      = document.getElementById('btnSpinner');
-const errorCard       = document.getElementById('errorCard');
-const errorTitle      = document.getElementById('errorTitle');
-const errorMsg        = document.getElementById('errorMsg');
-const resultsSection  = document.getElementById('results');
+const settingsToggle    = document.getElementById('settingsToggle');
+const settingsPanel     = document.getElementById('settingsPanel');
+const settingsLabel     = document.getElementById('settingsLabel');
+const providerOpenAI    = document.getElementById('providerOpenAI');
+const providerGoogle    = document.getElementById('providerGoogle');
+const tabOpenAI         = document.getElementById('tabOpenAI');
+const tabGoogle         = document.getElementById('tabGoogle');
+const openaiSection     = document.getElementById('openaiSection');
+const googleSection     = document.getElementById('googleSection');
+const apiKeyInput       = document.getElementById('apiKeyInput');
+const modelInput        = document.getElementById('modelInput');
+const googleApiKeyInput = document.getElementById('googleApiKeyInput');
+const googleModelInput  = document.getElementById('googleModelInput');
+const saveKeyBtn        = document.getElementById('saveKeyBtn');
+const artistInput       = document.getElementById('artistInput');
+const songInput         = document.getElementById('songInput');
+const submitBtn         = document.getElementById('submitBtn');
+const btnText           = document.getElementById('btnText');
+const btnSpinner        = document.getElementById('btnSpinner');
+const errorCard         = document.getElementById('errorCard');
+const errorTitle        = document.getElementById('errorTitle');
+const errorMsg          = document.getElementById('errorMsg');
+const resultsSection    = document.getElementById('results');
 
 // ─── Init ────────────────────────────────────────────────────────────────────
 (function init() {
-  const savedKey   = localStorage.getItem(LS_KEY_APIKEY) || '';
-  const savedModel = localStorage.getItem(LS_KEY_MODEL)  || '';
-  if (savedKey)   apiKeyInput.value = savedKey;
-  if (savedModel) modelInput.value  = savedModel;
+  const savedKey         = localStorage.getItem(LS_KEY_APIKEY)       || '';
+  const savedModel       = localStorage.getItem(LS_KEY_MODEL)        || '';
+  const savedGoogleKey   = localStorage.getItem(LS_KEY_GOOGLE_KEY)   || '';
+  const savedGoogleModel = localStorage.getItem(LS_KEY_GOOGLE_MODEL) || '';
+  const savedProvider    = localStorage.getItem(LS_KEY_PROVIDER)     || 'openai';
+  if (savedKey)         apiKeyInput.value       = savedKey;
+  if (savedModel)       modelInput.value        = savedModel;
+  if (savedGoogleKey)   googleApiKeyInput.value = savedGoogleKey;
+  if (savedGoogleModel) googleModelInput.value  = savedGoogleModel;
+  applyProvider(savedProvider);
   updateSettingsLabel();
 })();
+
+// ─── Provider selector ───────────────────────────────────────────────────────
+function applyProvider(provider) {
+  const isGoogle = provider === 'google';
+  providerOpenAI.checked = !isGoogle;
+  providerGoogle.checked =  isGoogle;
+  tabOpenAI.classList.toggle('active', !isGoogle);
+  tabGoogle.classList.toggle('active',  isGoogle);
+  openaiSection.classList.toggle('disabled',  isGoogle);
+  googleSection.classList.toggle('disabled', !isGoogle);
+}
+
+providerOpenAI.addEventListener('change', () => applyProvider('openai'));
+providerGoogle.addEventListener('change', () => applyProvider('google'));
+
+function getCurrentProvider() {
+  return providerGoogle.checked ? 'google' : 'openai';
+}
 
 // ─── Settings toggle ─────────────────────────────────────────────────────────
 settingsToggle.addEventListener('click', () => {
@@ -715,11 +820,21 @@ settingsToggle.addEventListener('click', () => {
 });
 
 saveKeyBtn.addEventListener('click', () => {
-  const key   = apiKeyInput.value.trim();
-  const model = modelInput.value.trim();
-  if (key)   localStorage.setItem(LS_KEY_APIKEY, key);
-  if (model) localStorage.setItem(LS_KEY_MODEL,  model);
-  else       localStorage.removeItem(LS_KEY_MODEL);
+  const provider = getCurrentProvider();
+  localStorage.setItem(LS_KEY_PROVIDER, provider);
+  if (provider === 'google') {
+    const gKey   = googleApiKeyInput.value.trim();
+    const gModel = googleModelInput.value.trim();
+    if (gKey)   localStorage.setItem(LS_KEY_GOOGLE_KEY,   gKey);
+    if (gModel) localStorage.setItem(LS_KEY_GOOGLE_MODEL, gModel);
+    else        localStorage.removeItem(LS_KEY_GOOGLE_MODEL);
+  } else {
+    const key   = apiKeyInput.value.trim();
+    const model = modelInput.value.trim();
+    if (key)   localStorage.setItem(LS_KEY_APIKEY, key);
+    if (model) localStorage.setItem(LS_KEY_MODEL,  model);
+    else       localStorage.removeItem(LS_KEY_MODEL);
+  }
   updateSettingsLabel();
   // Close panel
   settingsPanel.classList.remove('open');
@@ -728,12 +843,16 @@ saveKeyBtn.addEventListener('click', () => {
 });
 
 function updateSettingsLabel() {
-  const key = localStorage.getItem(LS_KEY_APIKEY);
-  settingsLabel.textContent = key ? '⚙️ API Settings (key saved ✓)' : '⚙️ API Settings';
+  const provider   = localStorage.getItem(LS_KEY_PROVIDER) || 'openai';
+  const openaiKey  = localStorage.getItem(LS_KEY_APIKEY);
+  const googleKey  = localStorage.getItem(LS_KEY_GOOGLE_KEY);
+  const hasKey     = provider === 'google' ? !!googleKey : !!openaiKey;
+  settingsLabel.textContent = hasKey ? '⚙️ API Settings (key saved ✓)' : '⚙️ API Settings';
 }
 
-// Also save on Enter in key input
-apiKeyInput.addEventListener('keydown', e => { if (e.key === 'Enter') saveKeyBtn.click(); });
+// Also save on Enter in key inputs
+apiKeyInput.addEventListener('keydown',       e => { if (e.key === 'Enter') saveKeyBtn.click(); });
+googleApiKeyInput.addEventListener('keydown', e => { if (e.key === 'Enter') saveKeyBtn.click(); });
 
 // ─── Inventory loading ───────────────────────────────────────────────────────
 async function ensureInventory() {
@@ -814,20 +933,33 @@ artistInput.addEventListener('keydown', e => { if (e.key === 'Enter') songInput.
 songInput.addEventListener('keydown',   e => { if (e.key === 'Enter') handleSubmit(); });
 
 async function handleSubmit() {
-  const apiKey = (apiKeyInput.value.trim()) || localStorage.getItem(LS_KEY_APIKEY) || '';
-  const artist = artistInput.value.trim();
-  const song   = songInput.value.trim();
+  const provider = getCurrentProvider();
+  const artist   = artistInput.value.trim();
+  const song     = songInput.value.trim();
 
   hideError();
   hideResults();
 
-  if (!apiKey) {
-    showError('API Key Required', 'Please enter your OpenAI API key in the settings panel above and click Save.');
-    settingsPanel.classList.add('open');
-    settingsToggle.classList.add('open');
-    settingsToggle.setAttribute('aria-expanded', 'true');
-    return;
+  if (provider === 'google') {
+    const googleApiKey = googleApiKeyInput.value.trim() || localStorage.getItem(LS_KEY_GOOGLE_KEY) || '';
+    if (!googleApiKey) {
+      showError('API Key Required', 'Please enter your Google Gemini API key in the settings panel above and click Save.');
+      settingsPanel.classList.add('open');
+      settingsToggle.classList.add('open');
+      settingsToggle.setAttribute('aria-expanded', 'true');
+      return;
+    }
+  } else {
+    const apiKey = apiKeyInput.value.trim() || localStorage.getItem(LS_KEY_APIKEY) || '';
+    if (!apiKey) {
+      showError('API Key Required', 'Please enter your OpenAI API key in the settings panel above and click Save.');
+      settingsPanel.classList.add('open');
+      settingsToggle.classList.add('open');
+      settingsToggle.setAttribute('aria-expanded', 'true');
+      return;
+    }
   }
+
   if (!artist || !song) {
     showError('Missing Input', 'Please enter both an artist name and a song title.');
     return;
@@ -836,41 +968,78 @@ async function handleSubmit() {
   setLoading(true);
 
   try {
-    const inv = await ensureInventory();
+    const inv          = await ensureInventory();
     const systemPrompt = buildSystemPrompt(inv);
     const userMessage  = buildAdviseMessage(artist, song);
-    const model        = modelInput.value.trim() || localStorage.getItem(LS_KEY_MODEL) || 'gpt-4o';
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type':  'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model,
-        temperature: 0.3,
-        response_format: { type: 'json_object' },
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user',   content: userMessage  },
-        ],
-      }),
-    });
+    let data;
 
-    if (!response.ok) {
-      let detail = '';
-      try { const errorData = await response.json(); detail = errorData.error?.message || ''; } catch(_) {}
-      throw new Error(`OpenAI API error (HTTP ${response.status})${detail ? ': ' + detail : ''}`);
+    if (provider === 'google') {
+      const googleApiKey = googleApiKeyInput.value.trim() || localStorage.getItem(LS_KEY_GOOGLE_KEY) || '';
+      const googleModel  = googleModelInput.value.trim() || localStorage.getItem(LS_KEY_GOOGLE_MODEL) || 'gemini-2.0-flash';
+
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${googleModel}:generateContent?key=${googleApiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [
+              { role: 'user', parts: [{ text: systemPrompt + '\n\n' + userMessage }] },
+            ],
+            generationConfig: {
+              temperature: 0.3,
+              responseMimeType: 'application/json',
+            },
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        let detail = '';
+        try { const errorData = await response.json(); detail = errorData.error?.message || ''; } catch(_) {}
+        throw new Error(`Google Gemini API error (HTTP ${response.status})${detail ? ': ' + detail : ''}`);
+      }
+
+      const rawData = await response.json();
+      const raw     = rawData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      try { data = JSON.parse(raw); }
+      catch (e) { throw new Error('Failed to parse JSON response from the model. Raw output: ' + raw.slice(0, 300) + (raw.length > 300 ? '… (truncated)' : '')); }
+
+    } else {
+      const apiKey = apiKeyInput.value.trim() || localStorage.getItem(LS_KEY_APIKEY) || '';
+      const model  = modelInput.value.trim() || localStorage.getItem(LS_KEY_MODEL) || 'gpt-4o';
+
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type':  'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model,
+          temperature: 0.3,
+          response_format: { type: 'json_object' },
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user',   content: userMessage  },
+          ],
+        }),
+      });
+
+      if (!response.ok) {
+        let detail = '';
+        try { const errorData = await response.json(); detail = errorData.error?.message || ''; } catch(_) {}
+        throw new Error(`OpenAI API error (HTTP ${response.status})${detail ? ': ' + detail : ''}`);
+      }
+
+      const rawData = await response.json();
+      const raw     = rawData.choices?.[0]?.message?.content || '';
+      try { data = JSON.parse(raw); }
+      catch (e) { throw new Error('Failed to parse JSON response from the model. Raw output: ' + raw.slice(0, 300) + (raw.length > 300 ? '… (truncated)' : '')); }
     }
 
-    const data   = await response.json();
-    const raw    = data.choices?.[0]?.message?.content || '';
-    let result;
-    try { result = JSON.parse(raw); }
-    catch (e) { throw new Error('Failed to parse JSON response from the model. Raw output: ' + raw.slice(0, 300) + (raw.length > 300 ? '… (truncated)' : '')); }
-
-    renderResults(result, inv, artist, song);
+    renderResults(data, inv, artist, song);
 
   } catch (err) {
     showError('Error', err.message || String(err));
