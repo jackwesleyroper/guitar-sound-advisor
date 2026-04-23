@@ -13,7 +13,8 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "tsx src/index.ts",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "web": "tsx src/index.ts web"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

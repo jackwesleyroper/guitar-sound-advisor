@@ -14,6 +14,8 @@ export const AmpSchema = z.object({
   id: z.string(),
   name: z.string(),
   type: z.string().optional(),
+  amp_type: z.string().optional(),
+  effects_loop: z.boolean().optional(),
   channels: z.array(z.string()).optional(),
   controls: z.array(z.string()),
   notes: z.array(z.string()).optional(),
