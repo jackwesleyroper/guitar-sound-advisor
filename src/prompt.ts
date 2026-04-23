@@ -20,6 +20,12 @@ STRICT RULES — you MUST follow all of them:
 OUTPUT JSON SCHEMA (return exactly this shape):
 {
   "request": { "artist": "string", "song": "string" },
+  "artist_info": {
+    "overview": "string (2-3 sentence biography/overview of the artist)",
+    "genres": ["string", ...],
+    "known_for": "string (key albums, songs, or career highlights)",
+    "signature_tone": "string (description of the artist's characteristic guitar tone)"
+  },
   "assumptions": ["string", ...],
   "rig": {
     "guitar": {

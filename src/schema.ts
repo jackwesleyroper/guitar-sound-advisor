@@ -70,6 +70,13 @@ export type Pedal = z.infer<typeof PedalSchema>;
 
 // ─── Adviser Output Schemas ───────────────────────────────────────────────────
 
+export const ArtistInfoSchema = z.object({
+  overview: z.string(),
+  genres: z.array(z.string()),
+  known_for: z.string(),
+  signature_tone: z.string(),
+});
+
 export const GuitarSettingsSchema = z.object({
   id: z.string(),
   pickup_position: z.string().optional(),
@@ -100,6 +107,7 @@ export const AdviserOutputSchema = z.object({
     artist: z.string(),
     song: z.string(),
   }),
+  artist_info: ArtistInfoSchema.optional(),
   assumptions: z.array(z.string()),
   rig: RigSchema,
   how_to_dial_in: z.array(z.string()),
@@ -108,3 +116,4 @@ export const AdviserOutputSchema = z.object({
 });
 
 export type AdviserOutput = z.infer<typeof AdviserOutputSchema>;
+export type ArtistInfo = z.infer<typeof ArtistInfoSchema>;
